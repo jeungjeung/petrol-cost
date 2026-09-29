@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./supabase-config.js";
+import { calculateComparison as calculateComparisonValues } from "./calculations.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
@@ -9,7 +10,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   },
 });
 
-const IMPERIAL_GALLON_LITRES = 4.54609;
 let isSignupMode = false;
 
 const state = {
@@ -170,27 +170,36 @@ function calculateComparison(event) {
     return;
   }
 
-  const nearbyPrice = Number(document.querySelector("#near-price").value) / 100;
-  const awayPrice = Number(document.querySelector("#away-price").value) / 100;
-  const distance = Number(document.querySelector("#distance").value);
-  const litres = Number(document.querySelector("#litres").value);
-  const costPerMile = (nearbyPrice * IMPERIAL_GALLON_LITRES) / car.mpgUk;
-  const travelCost = distance * 2 * costPerMile;
-  const grossSaving = (nearbyPrice - awayPrice) * litres;
-  const netSaving = grossSaving - travelCost;
+  const comparisonValues = {
+    nearbyPricePence: Number(document.querySelector("#near-price").value),
+    awayPricePence: Number(document.querySelector("#away-price").value),
+    distanceMiles: Number(document.querySelector("#distance").value),
+    litres: Number(document.querySelector("#litres").value),
+    mpgUk: car.mpgUk,
+  };
+
+  let result;
+  try {
+    result = calculateComparisonValues(comparisonValues);
+  } catch (error) {
+    elements.resultCard.classList.remove("is-hidden", "decision-good", "decision-bad");
+    elements.resultCard.classList.add("decision-even");
+    elements.resultTitle.textContent = "Check your inputs";
+    elements.resultSummary.textContent = error.message;
+    return;
+  }
 
   elements.resultCard.classList.remove("is-hidden");
   elements.resultCard.classList.remove("decision-good", "decision-bad", "decision-even");
-  const decision = netSaving > 0 ? "good" : netSaving < 0 ? "bad" : "even";
-  elements.resultCard.classList.add(`decision-${decision}`);
-  elements.resultTitle.textContent = netSaving > 0 ? "Worth travelling" : netSaving < 0 ? "Not worth travelling" : "Break-even";
-  elements.resultSummary.textContent = netSaving > 0
-    ? `The away station would save ${formatMoney(netSaving)} after the journey.`
-    : `The journey would cost ${formatMoney(Math.abs(netSaving))} more than it saves.`;
-  elements.netSaving.textContent = formatMoney(netSaving);
-  elements.grossSaving.textContent = formatMoney(grossSaving);
-  elements.travelCost.textContent = formatMoney(travelCost);
-  elements.roundTripDistance.textContent = `${(distance * 2).toFixed(1)} miles`;
+  elements.resultCard.classList.add(`decision-${result.decision}`);
+  elements.resultTitle.textContent = result.decision === "good" ? "Worth travelling" : result.decision === "bad" ? "Not worth travelling" : "Break-even";
+  elements.resultSummary.textContent = result.decision === "good"
+    ? `The away station would save ${formatMoney(result.netSaving)} after the journey.`
+    : `The journey would cost ${formatMoney(Math.abs(result.netSaving))} more than it saves.`;
+  elements.netSaving.textContent = formatMoney(result.netSaving);
+  elements.grossSaving.textContent = formatMoney(result.grossSaving);
+  elements.travelCost.textContent = formatMoney(result.travelCost);
+  elements.roundTripDistance.textContent = `${result.roundTripDistance.toFixed(1)} miles`;
 }
 
 elements.authForm.addEventListener("submit", (event) => {
@@ -234,6 +243,11 @@ elements.carForm.addEventListener("submit", async (event) => {
   if (!name || mpgUk <= 0) return;
 
   const existingId = elements.editingCarId.value;
+  const duplicateName = state.cars.some((car) => car.name.toLowerCase() === name.toLowerCase() && car.id !== existingId);
+  if (duplicateName) {
+    elements.carSummary.textContent = "Use a different name for each saved car.";
+    return;
+  }
   const savedCar = await saveCar({ id: existingId, name, mpgUk });
   if (!savedCar) return;
 

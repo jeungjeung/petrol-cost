@@ -1,0 +1,8 @@
+{
+  "name": "petrol-cost",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/calculations.test.js"
+  }
+}

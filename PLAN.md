@@ -262,8 +262,8 @@ The current free tier has important limits, including restricted outbound intern
 - [x] Implement adding, retrieving, selecting, renaming, and editing cars
 - [x] Implement the global car calculation using the selected car
 - [x] Implement the station comparison calculation
-- [ ] Add validation and edge-case handling
-- [ ] Add tests for calculation accuracy
+- [x] Add validation and edge-case handling
+- [x] Add automated tests for calculation accuracy
 - [ ] Perform a usability review
 - [ ] Prepare the first usable release
 
