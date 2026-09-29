@@ -11,6 +11,7 @@ const elements = {
   authForm: document.querySelector("#auth-form"),
   authMessage: document.querySelector("#auth-message"),
   showSignup: document.querySelector("#show-signup"),
+  previewCalculator: document.querySelector("#preview-calculator"),
   signOut: document.querySelector("#sign-out"),
   carSelect: document.querySelector("#car-select"),
   carSummary: document.querySelector("#car-summary"),
@@ -154,6 +155,12 @@ elements.authForm.addEventListener("submit", (event) => {
 
 elements.showSignup.addEventListener("click", () => {
   elements.authMessage.textContent = "Account creation will be connected to Supabase in the next step.";
+});
+
+elements.previewCalculator.addEventListener("click", () => {
+  elements.authView.classList.add("is-hidden");
+  elements.appView.classList.remove("is-hidden");
+  elements.authMessage.textContent = "";
 });
 
 elements.signOut.addEventListener("click", () => {
