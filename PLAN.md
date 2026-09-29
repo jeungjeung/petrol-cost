@@ -249,6 +249,7 @@ The current free tier has important limits, including restricted outbound intern
 - [x] Choose GitHub as the remote Git provider
 - [ ] Create the public GitHub repository and connect it
 - [x] Design and approve the user interface
+- [x] Create the initial vanilla web-app scaffold
 - [x] Choose hosted database storage
 - [x] Choose Supabase website authentication for the MVP
 - [x] Design and approve the Supabase database schema and Row Level Security policies

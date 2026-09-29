@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Compare petrol station prices after travel costs." />
+    <title>Petrol Cost</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section id="auth-view" class="auth-view" aria-labelledby="auth-title">
+        <div class="brand-mark" aria-hidden="true">£</div>
+        <p class="eyebrow">Petrol Cost</p>
+        <h1 id="auth-title">Make every fuel trip count.</h1>
+        <p class="intro">Compare the saving from cheaper petrol with the cost of travelling to get it.</p>
+
+        <form id="auth-form" class="card form-card">
+          <h2>Sign in</h2>
+          <label for="auth-email">Email</label>
+          <input id="auth-email" name="email" type="email" autocomplete="email" required />
+
+          <label for="auth-password">Password</label>
+          <input id="auth-password" name="password" type="password" autocomplete="current-password" required />
+
+          <button type="submit" class="button button-primary">Sign in</button>
+          <p id="auth-message" class="form-message" role="status"></p>
+          <button type="button" class="link-button" id="show-signup">Create an account</button>
+        </form>
+      </section>
+
+      <section id="app-view" class="app-view is-hidden" aria-labelledby="app-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Petrol Cost</p>
+            <h1 id="app-title">Fuel trip comparison</h1>
+          </div>
+          <button type="button" class="button button-quiet" id="sign-out">Sign out</button>
+        </header>
+
+        <div class="content-grid">
+          <section class="card section-card" aria-labelledby="car-section-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Your car</p>
+                <h2 id="car-section-title">Choose a saved car</h2>
+              </div>
+              <button type="button" class="button button-secondary" id="manage-cars">Manage cars</button>
+            </div>
+            <label for="car-select">Selected car</label>
+            <select id="car-select">
+              <option value="">No cars saved yet</option>
+            </select>
+            <div class="car-summary" id="car-summary">Add a car to calculate your fuel cost per mile.</div>
+          </section>
+
+          <section class="card section-card" aria-labelledby="comparison-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Station comparison</p>
+                <h2 id="comparison-title">Is the cheaper station worth it?</h2>
+              </div>
+            </div>
+
+            <form id="comparison-form" class="comparison-form">
+              <div class="input-grid">
+                <div>
+                  <label for="near-price">Nearby price <span>(pence/litre)</span></label>
+                  <input id="near-price" type="number" min="0" step="0.1" required />
+                </div>
+                <div>
+                  <label for="away-price">Away price <span>(pence/litre)</span></label>
+                  <input id="away-price" type="number" min="0" step="0.1" required />
+                </div>
+                <div>
+                  <label for="distance">One-way distance <span>(miles)</span></label>
+                  <input id="distance" type="number" min="0" step="0.1" required />
+                </div>
+                <div>
+                  <label for="litres">Fuel to purchase <span>(litres)</span></label>
+                  <input id="litres" type="number" min="0" step="0.1" required />
+                </div>
+              </div>
+              <button type="submit" class="button button-primary">Calculate</button>
+            </form>
+          </section>
+
+          <section class="card result-card is-hidden" id="result-card" aria-live="polite" aria-labelledby="result-title">
+            <p class="eyebrow">Result</p>
+            <h2 id="result-title">—</h2>
+            <p id="result-summary" class="result-summary"></p>
+            <dl class="result-list">
+              <div><dt>Net saving</dt><dd id="net-saving">—</dd></div>
+              <div><dt>Gross fuel saving</dt><dd id="gross-saving">—</dd></div>
+              <div><dt>Travel cost</dt><dd id="travel-cost">—</dd></div>
+              <div><dt>Round-trip distance</dt><dd id="round-trip-distance">—</dd></div>
+            </dl>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="car-dialog" class="car-dialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">Saved cars</p>
+          <h2>Manage your cars</h2>
+        </div>
+        <button type="button" class="icon-button" id="close-car-dialog" aria-label="Close">×</button>
+      </div>
+      <div id="car-list" class="car-list"></div>
+      <form id="car-form" class="car-form">
+        <input id="editing-car-id" type="hidden" />
+        <h3 id="car-form-title">Add a car</h3>
+        <label for="car-name">Car name</label>
+        <input id="car-name" type="text" required />
+        <label for="car-mpg">UK MPG</label>
+        <input id="car-mpg" type="number" min="0.1" step="0.1" required />
+        <div class="form-actions">
+          <button type="submit" class="button button-primary">Save car</button>
+          <button type="button" class="button button-quiet" id="cancel-car-edit">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
