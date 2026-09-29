@@ -253,15 +253,15 @@ The current free tier has important limits, including restricted outbound intern
 - [x] Choose hosted database storage
 - [x] Choose Supabase website authentication for the MVP
 - [x] Design and approve the Supabase database schema and Row Level Security policies
-- [ ] Design the website login and sign-up flow
+- [x] Design the website login and sign-up flow
 - [x] Choose a 30-day website session duration
 - [x] Verify website account creation and sign-in in the local preview
 - [x] Apply the `cars` table migration to the Supabase project
 - [x] Connect car retrieval and saving to Supabase
 - [x] Implement and test car deletion from Supabase
-- [ ] Implement adding, retrieving, selecting, renaming, and editing cars
-- [ ] Implement the global car calculation using the selected car
-- [ ] Implement the station comparison calculation
+- [x] Implement adding, retrieving, selecting, renaming, and editing cars
+- [x] Implement the global car calculation using the selected car
+- [x] Implement the station comparison calculation
 - [ ] Add validation and edge-case handling
 - [ ] Add tests for calculation accuracy
 - [ ] Perform a usability review
