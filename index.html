@@ -36,7 +36,10 @@
             <p class="eyebrow">Petrol Cost</p>
             <h1 id="app-title">Fuel trip comparison</h1>
           </div>
-          <button type="button" class="button button-quiet" id="sign-out">Sign out</button>
+          <div class="topbar-actions">
+            <button type="button" class="button button-secondary is-hidden" id="show-history">History</button>
+            <button type="button" class="button button-quiet" id="sign-out">Sign out</button>
+          </div>
         </header>
 
         <div class="content-grid">
@@ -96,8 +99,28 @@
               <div><dt>Travel cost</dt><dd id="travel-cost">—</dd></div>
               <div><dt>Round-trip distance</dt><dd id="round-trip-distance">—</dd></div>
             </dl>
+            <div id="save-calculation-panel" class="save-calculation-panel is-hidden">
+              <label for="save-description">Description <span>(optional)</span></label>
+              <input id="save-description" type="text" maxlength="200" placeholder="e.g. Saturday commute" />
+              <button type="button" class="button button-secondary" id="save-calculation">Save calculation</button>
+              <p id="save-message" class="form-message" role="status"></p>
+            </div>
           </section>
         </div>
+      </section>
+
+      <section id="history-view" class="app-view is-hidden" aria-labelledby="history-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Petrol Cost</p>
+            <h1 id="history-title">Calculation history</h1>
+          </div>
+          <button type="button" class="button button-secondary" id="back-to-calculator">Back to calculator</button>
+        </header>
+        <section class="card history-card" aria-live="polite">
+          <div id="history-message" class="history-message">Loading saved calculations…</div>
+          <div id="history-list" class="history-list"></div>
+        </section>
       </section>
     </main>
 
