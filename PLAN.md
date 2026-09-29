@@ -255,6 +255,7 @@ The current free tier has important limits, including restricted outbound intern
 - [x] Design and approve the Supabase database schema and Row Level Security policies
 - [x] Design the website login and sign-up flow
 - [x] Choose a 30-day website session duration
+- [x] Implement the 30-day client-side session expiry
 - [x] Verify website account creation and sign-in in the local preview
 - [x] Apply the `cars` table migration to the Supabase project
 - [x] Connect car retrieval and saving to Supabase

@@ -10,7 +10,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   },
 });
 
+const SESSION_IDLE_LIMIT_MS = 30 * 24 * 60 * 60 * 1000;
+const SESSION_ACTIVITY_KEY = "petrol-cost-last-active";
 let isSignupMode = false;
+let currentSession = null;
 
 const state = {
   cars: [{ id: "default-car", name: "Default Car", mpgUk: 47 }],
@@ -301,11 +304,43 @@ function renderSession(session) {
   }
 }
 
-supabase.auth.onAuthStateChange((_event, session) => {
+async function handleSession(session) {
+  if (session && isSessionExpired()) {
+    localStorage.removeItem(SESSION_ACTIVITY_KEY);
+    await supabase.auth.signOut();
+    return;
+  }
+
+  currentSession = session;
+  if (session) markSessionActive();
+  else localStorage.removeItem(SESSION_ACTIVITY_KEY);
   renderSession(session);
+}
+
+function isSessionExpired() {
+  const lastActive = Number(localStorage.getItem(SESSION_ACTIVITY_KEY));
+  return lastActive > 0 && Date.now() - lastActive >= SESSION_IDLE_LIMIT_MS;
+}
+
+function markSessionActive() {
+  localStorage.setItem(SESSION_ACTIVITY_KEY, String(Date.now()));
+}
+
+function recordSessionActivity() {
+  if (currentSession && !isSessionExpired()) markSessionActive();
+}
+
+window.addEventListener("pointerdown", recordSessionActivity);
+window.addEventListener("keydown", recordSessionActivity);
+window.setInterval(() => {
+  if (currentSession && isSessionExpired()) supabase.auth.signOut();
+}, 60 * 1000);
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  handleSession(session);
 });
 
-supabase.auth.getSession().then(({ data }) => renderSession(data.session));
+supabase.auth.getSession().then(({ data }) => handleSession(data.session));
 
 async function loadCars() {
   elements.carSummary.textContent = "Loading saved cars…";
