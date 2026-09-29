@@ -1,4 +1,16 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./supabase-config.js";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
+
 const IMPERIAL_GALLON_LITRES = 4.54609;
+let isSignupMode = false;
 
 const state = {
   cars: [{ id: "default-car", name: "Default Car", mpgUk: 47 }],
@@ -9,6 +21,8 @@ const elements = {
   authView: document.querySelector("#auth-view"),
   appView: document.querySelector("#app-view"),
   authForm: document.querySelector("#auth-form"),
+  authFormTitle: document.querySelector("#auth-form-title"),
+  authSubmit: document.querySelector("#auth-submit"),
   authMessage: document.querySelector("#auth-message"),
   showSignup: document.querySelector("#show-signup"),
   previewCalculator: document.querySelector("#preview-calculator"),
@@ -153,11 +167,15 @@ function calculateComparison(event) {
 
 elements.authForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  elements.authMessage.textContent = "Authentication will be connected to Supabase in the next step.";
+  authenticateUser();
 });
 
 elements.showSignup.addEventListener("click", () => {
-  elements.authMessage.textContent = "Account creation will be connected to Supabase in the next step.";
+  isSignupMode = !isSignupMode;
+  elements.authFormTitle.textContent = isSignupMode ? "Create an account" : "Sign in";
+  elements.authSubmit.textContent = isSignupMode ? "Create account" : "Sign in";
+  elements.showSignup.textContent = isSignupMode ? "Already have an account? Sign in" : "Create an account";
+  elements.authMessage.textContent = "";
 });
 
 elements.previewCalculator.addEventListener("click", () => {
@@ -167,8 +185,7 @@ elements.previewCalculator.addEventListener("click", () => {
 });
 
 elements.signOut.addEventListener("click", () => {
-  elements.appView.classList.add("is-hidden");
-  elements.authView.classList.remove("is-hidden");
+  supabase.auth.signOut();
 });
 
 elements.carSelect.addEventListener("change", (event) => {
@@ -202,3 +219,34 @@ elements.carForm.addEventListener("submit", (event) => {
 });
 
 renderCars();
+
+async function authenticateUser() {
+  const email = document.querySelector("#auth-email").value.trim();
+  const password = document.querySelector("#auth-password").value;
+  elements.authMessage.textContent = "Working…";
+
+  const result = isSignupMode
+    ? await supabase.auth.signUp({ email, password })
+    : await supabase.auth.signInWithPassword({ email, password });
+
+  if (result.error) {
+    elements.authMessage.textContent = result.error.message;
+    return;
+  }
+
+  if (isSignupMode && !result.data.session) {
+    elements.authMessage.textContent = "Account created. Check your email to confirm your address, then sign in.";
+  }
+}
+
+function renderSession(session) {
+  const isSignedIn = Boolean(session);
+  elements.authView.classList.toggle("is-hidden", isSignedIn);
+  elements.appView.classList.toggle("is-hidden", !isSignedIn);
+}
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  renderSession(session);
+});
+
+supabase.auth.getSession().then(({ data }) => renderSession(data.session));
