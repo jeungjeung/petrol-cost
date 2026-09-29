@@ -1,5 +1,5 @@
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./supabase-config.js";
-import { calculateComparison as calculateComparisonValues } from "./calculations.js";
+import { calculateComparison as calculateComparisonValues, calculateCostPerMile } from "./calculations.js";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
@@ -69,22 +69,33 @@ function getSelectedCar() {
   return state.cars.find((car) => car.id === state.selectedCarId);
 }
 
+function renderCarSummary() {
+  const selectedCar = getSelectedCar();
+  if (!selectedCar) {
+    elements.carSummary.textContent = state.cars.length === 0
+      ? "Add a car to calculate your fuel cost per mile."
+      : "Select a car to continue.";
+    return;
+  }
+
+  const nearbyPricePence = Number(document.querySelector("#near-price").value);
+  const costText = nearbyPricePence > 0
+    ? `${formatMoney(calculateCostPerMile(nearbyPricePence, selectedCar.mpgUk))} per mile at ${nearbyPricePence}p/litre.`
+    : "Enter the nearby petrol price to see cost per mile.";
+  elements.carSummary.textContent = `${selectedCar.mpgUk} UK MPG · ${costText}`;
+}
+
 function renderCars() {
   elements.carSelect.replaceChildren();
 
   if (state.cars.length === 0) {
     elements.carSelect.add(new Option("No cars saved yet", ""));
-    elements.carSummary.textContent = "Add a car to calculate your fuel cost per mile.";
   } else {
     state.cars.forEach((car) => {
       elements.carSelect.add(new Option(car.name, car.id, false, car.id === state.selectedCarId));
     });
-    const selectedCar = getSelectedCar();
-    const costPerMile = selectedCar ? "Add a petrol price to see the exact cost per mile." : "Select a car to continue.";
-    elements.carSummary.textContent = selectedCar
-      ? `${selectedCar.mpgUk} UK MPG. ${costPerMile}`
-      : "Select a car to continue.";
   }
+  renderCarSummary();
 
   elements.carList.replaceChildren();
   if (state.cars.length === 0) {
@@ -326,6 +337,8 @@ elements.carSelect.addEventListener("change", (event) => {
   state.selectedCarId = event.target.value;
   renderCars();
 });
+
+document.querySelector("#near-price").addEventListener("input", renderCarSummary);
 
 elements.manageCars.addEventListener("click", () => elements.carDialog.showModal());
 elements.closeCarDialog.addEventListener("click", () => elements.carDialog.close());
