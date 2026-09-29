@@ -257,7 +257,8 @@ The current free tier has important limits, including restricted outbound intern
 - [x] Choose a 30-day website session duration
 - [x] Verify website account creation and sign-in in the local preview
 - [x] Apply the `cars` table migration to the Supabase project
-- [ ] Connect car retrieval and saving to Supabase
+- [x] Connect car retrieval and saving to Supabase
+- [x] Implement and test car deletion from Supabase
 - [ ] Implement adding, retrieving, selecting, renaming, and editing cars
 - [ ] Implement the global car calculation using the selected car
 - [ ] Implement the station comparison calculation

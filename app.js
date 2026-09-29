@@ -95,6 +95,7 @@ function renderCars() {
         renderCars();
       }),
       createTextButton("Edit", () => startCarEdit(car)),
+      createTextButton("Delete", () => deleteCar(car)),
     );
     row.append(actions);
     elements.carList.append(row);
@@ -132,6 +133,31 @@ function resetCarForm() {
   elements.carForm.reset();
   elements.editingCarId.value = "";
   elements.carFormTitle.textContent = "Add a car";
+}
+
+async function deleteCar(car) {
+  if (state.cars.length === 1) {
+    elements.carSummary.textContent = "Keep at least one saved car. Add another car before deleting this one.";
+    return;
+  }
+
+  if (!window.confirm(`Delete ${car.name}?`)) return;
+
+  if (!state.previewMode) {
+    const { error } = await supabase
+      .from("cars")
+      .delete()
+      .eq("id", car.id)
+      .eq("user_id", state.userId);
+    if (error) {
+      elements.carSummary.textContent = `Could not delete car: ${error.message}`;
+      return;
+    }
+  }
+
+  state.cars = state.cars.filter((item) => item.id !== car.id);
+  if (state.selectedCarId === car.id) state.selectedCarId = state.cars[0]?.id || "";
+  renderCars();
 }
 
 function calculateComparison(event) {
