@@ -1,8 +1,8 @@
 const IMPERIAL_GALLON_LITRES = 4.54609;
 
 const state = {
-  cars: [],
-  selectedCarId: "",
+  cars: [{ id: "default-car", name: "Default Car", mpgUk: 47 }],
+  selectedCarId: "default-car",
 };
 
 const elements = {
@@ -138,6 +138,9 @@ function calculateComparison(event) {
   const netSaving = grossSaving - travelCost;
 
   elements.resultCard.classList.remove("is-hidden");
+  elements.resultCard.classList.remove("decision-good", "decision-bad", "decision-even");
+  const decision = netSaving > 0 ? "good" : netSaving < 0 ? "bad" : "even";
+  elements.resultCard.classList.add(`decision-${decision}`);
   elements.resultTitle.textContent = netSaving > 0 ? "Worth travelling" : netSaving < 0 ? "Not worth travelling" : "Break-even";
   elements.resultSummary.textContent = netSaving > 0
     ? `The away station would save ${formatMoney(netSaving)} after the journey.`

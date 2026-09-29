@@ -59,6 +59,12 @@ input:focus, select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rg
 .input-grid { display: grid; gap: 8px 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .result-card { grid-column: 1 / -1; border-color: #b9dfc3; background: linear-gradient(135deg, #f1fbf3, #ffffff); }
 .result-card h2 { margin-bottom: 8px; color: var(--brand-dark); }
+.result-card.decision-good { border-color: #9bd2aa; background: linear-gradient(135deg, #eaf8ed, #ffffff); }
+.result-card.decision-good h2 { color: #176b45; }
+.result-card.decision-bad { border-color: #efb2b2; background: linear-gradient(135deg, #fff0f0, #ffffff); }
+.result-card.decision-bad h2 { color: #a52e2e; }
+.result-card.decision-even { border-color: #e7c978; background: linear-gradient(135deg, #fff8df, #ffffff); }
+.result-card.decision-even h2 { color: #896500; }
 .result-summary { color: var(--muted); }
 .result-list { display: grid; gap: 12px; margin: 22px 0 0; }
 .result-list div { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
