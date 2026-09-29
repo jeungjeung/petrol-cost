@@ -15,6 +15,8 @@ let isSignupMode = false;
 const state = {
   cars: [{ id: "default-car", name: "Default Car", mpgUk: 47 }],
   selectedCarId: "default-car",
+  userId: null,
+  previewMode: true,
 };
 
 const elements = {
@@ -179,6 +181,7 @@ elements.showSignup.addEventListener("click", () => {
 });
 
 elements.previewCalculator.addEventListener("click", () => {
+  state.previewMode = true;
   elements.authView.classList.add("is-hidden");
   elements.appView.classList.remove("is-hidden");
   elements.authMessage.textContent = "";
@@ -198,21 +201,22 @@ elements.closeCarDialog.addEventListener("click", () => elements.carDialog.close
 elements.cancelCarEdit.addEventListener("click", resetCarForm);
 elements.comparisonForm.addEventListener("submit", calculateComparison);
 
-elements.carForm.addEventListener("submit", (event) => {
+elements.carForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const name = elements.carName.value.trim();
   const mpgUk = Number(elements.carMpg.value);
   if (!name || mpgUk <= 0) return;
 
   const existingId = elements.editingCarId.value;
+  const savedCar = await saveCar({ id: existingId, name, mpgUk });
+  if (!savedCar) return;
+
   if (existingId) {
-    const car = state.cars.find((item) => item.id === existingId);
-    car.name = name;
-    car.mpgUk = mpgUk;
+    const carIndex = state.cars.findIndex((item) => item.id === existingId);
+    state.cars[carIndex] = savedCar;
   } else {
-    const id = crypto.randomUUID();
-    state.cars.push({ id, name, mpgUk });
-    state.selectedCarId = id;
+    state.cars.push(savedCar);
+    state.selectedCarId = savedCar.id;
   }
   renderCars();
   resetCarForm();
@@ -243,6 +247,18 @@ function renderSession(session) {
   const isSignedIn = Boolean(session);
   elements.authView.classList.toggle("is-hidden", isSignedIn);
   elements.appView.classList.toggle("is-hidden", !isSignedIn);
+
+  if (isSignedIn) {
+    state.previewMode = false;
+    state.userId = session.user.id;
+    loadCars();
+  } else {
+    state.previewMode = true;
+    state.userId = null;
+    state.cars = [{ id: "default-car", name: "Default Car", mpgUk: 47 }];
+    state.selectedCarId = "default-car";
+    renderCars();
+  }
 }
 
 supabase.auth.onAuthStateChange((_event, session) => {
@@ -250,3 +266,54 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 
 supabase.auth.getSession().then(({ data }) => renderSession(data.session));
+
+async function loadCars() {
+  elements.carSummary.textContent = "Loading saved cars…";
+  const { data, error } = await supabase
+    .from("cars")
+    .select("id, name, mpg_uk")
+    .order("name");
+
+  if (error) {
+    elements.carSummary.textContent = `Could not load saved cars: ${error.message}`;
+    return;
+  }
+
+  state.cars = data.map((car) => ({ id: car.id, name: car.name, mpgUk: Number(car.mpg_uk) }));
+  if (state.cars.length === 0) {
+    const { data: defaultCar, error: defaultError } = await supabase
+      .from("cars")
+      .insert({ user_id: state.userId, name: "Default Car", mpg_uk: 47 })
+      .select("id, name, mpg_uk")
+      .single();
+
+    if (defaultError) {
+      elements.carSummary.textContent = `Could not create the default car: ${defaultError.message}`;
+      renderCars();
+      return;
+    }
+
+    state.cars = [{ id: defaultCar.id, name: defaultCar.name, mpgUk: Number(defaultCar.mpg_uk) }];
+  }
+
+  state.selectedCarId = state.cars[0].id;
+  renderCars();
+}
+
+async function saveCar({ id, name, mpgUk }) {
+  if (state.previewMode) {
+    return { id: id || crypto.randomUUID(), name, mpgUk };
+  }
+
+  const query = id
+    ? supabase.from("cars").update({ name, mpg_uk: mpgUk }).eq("id", id).eq("user_id", state.userId)
+    : supabase.from("cars").insert({ user_id: state.userId, name, mpg_uk: mpgUk });
+  const { data, error } = await query.select("id, name, mpg_uk").single();
+
+  if (error) {
+    elements.carSummary.textContent = `Could not save car: ${error.message}`;
+    return null;
+  }
+
+  return { id: data.id, name: data.name, mpgUk: Number(data.mpg_uk) };
+}
