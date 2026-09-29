@@ -245,9 +245,10 @@ The current free tier has important limits, including restricted outbound intern
 - [x] Choose Supabase for hosted data and backend services
 - [x] Choose GitHub Pages for static front-end hosting
 - [x] Decide to separate front-end hosting from backend/data hosting
-- [ ] Initialize the Git repository
+- [x] Initialize the Git repository
 - [x] Choose GitHub as the remote Git provider
-- [ ] Create the public GitHub repository and connect it
+- [x] Create the public GitHub repository and connect it
+- [x] Push the project branch to GitHub
 - [x] Design and approve the user interface
 - [x] Create the initial vanilla web-app scaffold
 - [x] Choose hosted database storage
