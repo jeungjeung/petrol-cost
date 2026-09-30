@@ -37,3 +37,46 @@ export function calculateComparison({
     decision: netSaving > 0 ? "good" : netSaving < 0 ? "bad" : "even",
   };
 }
+
+export function calculateRoutineJourney({
+  nearbyPricePence,
+  awayPricePence,
+  distanceMiles,
+  routineMiles,
+  mpgUk,
+}) {
+  const values = [nearbyPricePence, awayPricePence, distanceMiles, routineMiles, mpgUk];
+  if (values.some((value) => !Number.isFinite(value))) {
+    throw new Error("All comparison values must be numbers.");
+  }
+  if (nearbyPricePence <= 0 || awayPricePence <= 0 || distanceMiles < 0 || routineMiles <= 0 || mpgUk <= 0) {
+    throw new Error("Prices, routine distance, and MPG must be positive; station distance cannot be negative.");
+  }
+
+  const litresPerMile = IMPERIAL_GALLON_LITRES / mpgUk;
+  const nearbyPrice = nearbyPricePence / 100;
+  const awayPrice = awayPricePence / 100;
+  const averagePrice = (nearbyPrice + awayPrice) / 2;
+  const baselineCost = routineMiles * litresPerMile * nearbyPrice;
+  const outboundCost = distanceMiles * litresPerMile * averagePrice;
+  const returnCost = distanceMiles * litresPerMile * awayPrice;
+  const routineAwayCost = routineMiles * litresPerMile * awayPrice;
+  const awayTotalCost = outboundCost + returnCost + routineAwayCost;
+  const grossSaving = baselineCost - routineAwayCost;
+  const travelCost = outboundCost + returnCost;
+  const netSaving = baselineCost - awayTotalCost;
+
+  return {
+    litresPerMile,
+    baselineCost,
+    outboundCost,
+    returnCost,
+    routineAwayCost,
+    awayTotalCost,
+    grossSaving,
+    travelCost,
+    netSaving,
+    roundTripDistance: distanceMiles * 2,
+    decision: netSaving > 0 ? "good" : netSaving < 0 ? "bad" : "even",
+  };
+}

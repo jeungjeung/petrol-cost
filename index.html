@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Compare petrol station prices after travel costs." />
+    <meta name="theme-color" content="#176b45" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/png" sizes="512x512" href="./favicon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
     <title>Petrol Cost</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -67,6 +71,14 @@
             </div>
 
             <form id="comparison-form" class="comparison-form">
+              <div>
+                <span class="field-label">Calculation mode</span>
+                <div class="mode-tabs" role="tablist" aria-label="Calculation mode">
+                  <button type="button" class="mode-tab" id="mode-fuel" role="tab" aria-selected="true" aria-controls="fuel-amount-fields" tabindex="0" data-mode="fuel_amount">Fuel amount</button>
+                  <button type="button" class="mode-tab" id="mode-routine" role="tab" aria-selected="false" aria-controls="routine-journey-fields" tabindex="-1" data-mode="routine_journey">Routine journey</button>
+                </div>
+                <p id="mode-description" class="field-help">Compare the price saving on the fuel you plan to buy with the fuel cost of a special round trip.</p>
+              </div>
               <div class="input-grid">
                 <div>
                   <label for="near-price">Nearby price <span>(pence/litre)</span></label>
@@ -76,6 +88,8 @@
                   <label for="away-price">Away price <span>(pence/litre)</span></label>
                   <input id="away-price" type="number" inputmode="decimal" min="0" step="0.1" required />
                 </div>
+              </div>
+              <div id="fuel-amount-fields" class="input-grid mode-panel" role="tabpanel" aria-labelledby="mode-fuel" tabindex="0">
                 <div>
                   <label for="distance">One-way distance <span>(miles)</span></label>
                   <input id="distance" type="number" inputmode="decimal" min="0" step="0.1" required />
@@ -85,6 +99,17 @@
                   <input id="litres" type="number" inputmode="decimal" min="0" step="0.1" required />
                 </div>
               </div>
+              <div id="routine-journey-fields" class="input-grid mode-panel is-hidden" role="tabpanel" aria-labelledby="mode-routine" tabindex="0">
+                <div>
+                  <label for="routine-distance">Away station distance <span>(one way, miles)</span></label>
+                  <input id="routine-distance" type="number" inputmode="decimal" min="0" step="0.1" disabled required />
+                </div>
+                <div>
+                  <label for="routine-miles">Routine journey <span>(miles after refuelling)</span></label>
+                  <input id="routine-miles" type="number" inputmode="decimal" min="0.1" step="0.1" disabled required />
+                </div>
+              </div>
+              <p id="routine-help" class="field-help is-hidden">The away option includes the outbound leg at the average of both station prices, the return leg at the away price, and your routine journey at the away price.</p>
               <button type="submit" class="button button-primary">Calculate</button>
             </form>
           </section>
@@ -93,11 +118,19 @@
             <p class="eyebrow">Result</p>
             <h2 id="result-title">—</h2>
             <p id="result-summary" class="result-summary"></p>
-            <dl class="result-list">
+            <dl id="fuel-result-list" class="result-list">
               <div><dt>Net saving</dt><dd id="net-saving">—</dd></div>
               <div><dt>Gross fuel saving</dt><dd id="gross-saving">—</dd></div>
               <div><dt>Travel cost</dt><dd id="travel-cost">—</dd></div>
               <div><dt>Round-trip distance</dt><dd id="round-trip-distance">—</dd></div>
+            </dl>
+            <dl id="routine-result-list" class="result-list is-hidden">
+              <div><dt>Nearby option · routine journey</dt><dd id="baseline-cost">—</dd></div>
+              <div><dt>Out to station · average price</dt><dd id="outbound-cost">—</dd></div>
+              <div><dt>Return · away price</dt><dd id="return-cost">—</dd></div>
+              <div><dt>Routine journey · away price</dt><dd id="routine-away-cost">—</dd></div>
+              <div><dt>Away option · total</dt><dd id="away-total-cost">—</dd></div>
+              <div><dt>Net saving</dt><dd id="routine-net-saving">—</dd></div>
             </dl>
             <div id="save-calculation-panel" class="save-calculation-panel is-hidden">
               <label for="save-description">Description <span>(optional)</span></label>
