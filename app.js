@@ -1,5 +1,6 @@
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./supabase-config.js";
 import { calculateComparison as calculateComparisonValues, calculateCostPerMile } from "./calculations.js";
+import { getDecisionLabel, mapCalculationToHistoryRow } from "./calculation-history.js";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
@@ -152,10 +153,6 @@ function formatHistoryDate(value) {
   }).format(new Date(value));
 }
 
-function decisionLabel(decision) {
-  return decision === "good" ? "Worth travelling" : decision === "bad" ? "Not worth travelling" : "Break-even";
-}
-
 function showCalculator() {
   elements.historyView.classList.add("is-hidden");
   elements.appView.classList.remove("is-hidden");
@@ -183,7 +180,7 @@ function renderHistory(items) {
     card.innerHTML = `
       <div class="history-item-header">
         <div>
-          <h2>${escapeHtml(decisionLabel(item.decision))}</h2>
+          <h2>${escapeHtml(getDecisionLabel(item.decision))}</h2>
           <p class="history-item-date">${escapeHtml(formatHistoryDate(item.created_at))}</p>
         </div>
         <strong>${escapeHtml(item.car_name)}</strong>
@@ -513,22 +510,13 @@ async function saveCalculation() {
   }
 
   elements.saveMessage.textContent = "Saving…";
-  const { car, inputs, result } = state.lastCalculation;
-  const description = elements.saveDescription.value.trim() || null;
-  const { error } = await supabase.from("calculation_history").insert({
-    user_id: state.userId,
-    description,
-    car_name: car.name,
-    mpg_uk: car.mpgUk,
-    nearby_price_pence: inputs.nearbyPricePence,
-    away_price_pence: inputs.awayPricePence,
-    distance_miles: inputs.distanceMiles,
-    litres: inputs.litres,
-    gross_saving: result.grossSaving,
-    travel_cost: result.travelCost,
-    net_saving: result.netSaving,
-    decision: result.decision,
-  });
+  const { error } = await supabase.from("calculation_history").insert(
+    mapCalculationToHistoryRow({
+      userId: state.userId,
+      description: elements.saveDescription.value,
+      ...state.lastCalculation,
+    }),
+  );
 
   if (error) {
     elements.saveMessage.textContent = `Could not save calculation: ${error.message}`;
