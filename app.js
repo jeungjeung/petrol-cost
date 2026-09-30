@@ -81,6 +81,7 @@ const elements = {
 };
 
 const formatMoney = (value) => `£${value.toFixed(2)}`;
+const formatCostPerMile = (value) => `£${value.toFixed(4)}`;
 
 function getSelectedCar() {
   return state.cars.find((car) => car.id === state.selectedCarId);
@@ -97,7 +98,7 @@ function renderCarSummary() {
 
   const nearbyPricePence = Number(document.querySelector("#near-price").value);
   const costText = nearbyPricePence > 0
-    ? `${formatMoney(calculateCostPerMile(nearbyPricePence, selectedCar.mpgUk))} per mile at ${nearbyPricePence}p/litre.`
+    ? `${formatCostPerMile(calculateCostPerMile(nearbyPricePence, selectedCar.mpgUk))} per mile at ${nearbyPricePence}p/litre.`
     : "Enter the nearby petrol price to see cost per mile.";
   elements.carSummary.textContent = `${selectedCar.mpgUk} UK MPG · ${costText}`;
 }
@@ -217,11 +218,14 @@ function renderHistory(items) {
   items.forEach((item) => {
     const card = document.createElement("article");
     card.className = `history-item decision-${item.decision}`;
-    const description = item.description ? `<p class="history-item-description">${escapeHtml(item.description)}</p>` : "";
+    const description = item.description
+      ? `<div class="history-item-description"><p>${escapeHtml(item.description)}</p></div>`
+      : "";
     const routineMode = item.calculation_mode === "routine_journey";
     const distanceDetail = routineMode
       ? `<div><dt>Station distance</dt><dd>${item.distance_miles} miles one way</dd></div>
          <div><dt>Routine journey</dt><dd>${item.routine_distance_miles} miles</dd></div>
+         <div><dt>Nearby option total</dt><dd>${formatMoney(Number(item.baseline_cost))}</dd></div>
          <div><dt>Away option total</dt><dd>${formatMoney(Number(item.away_total_cost))}</dd></div>`
       : `<div><dt>Distance</dt><dd>${item.distance_miles} miles one way</dd></div>
          <div><dt>Fuel</dt><dd>${item.litres} litres</dd></div>`;

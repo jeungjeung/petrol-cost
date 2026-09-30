@@ -93,7 +93,8 @@ input:focus, select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rg
 .history-item-header { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
 .history-item h2 { margin-bottom: 4px; font-size: 1.05rem; }
 .history-item-date { margin: 0; color: var(--muted); font-size: 0.84rem; }
-.history-item-description { margin: 14px 0; color: var(--muted); font-style: italic; }
+.history-item-description { margin: 14px 0; padding: 12px 14px; border-left: 4px solid var(--accent); border-radius: 8px; color: var(--ink); background: var(--surface-soft); }
+.history-item-description p { margin: 0; font-weight: 650; line-height: 1.45; overflow-wrap: anywhere; }
 .history-item-details { display: grid; gap: 8px; margin: 16px 0 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .history-item-details div { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(223, 230, 225, 0.8); }
 .history-item-details dt { color: var(--muted); }
